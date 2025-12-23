@@ -2,499 +2,233 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Java Stream API Guide</title>
     <style>
+        /* --- SCOPED STYLES (Use specific names to avoid breaking index.html) --- */
+        
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
-            --card-bg: #ffffff;
-            --code-bg: #2d2d2d;
-            --text-color: #333;
-            --border-radius: 12px;
+            --s-primary: #2c3e50;
+            --s-accent: #3498db;
+            --s-bg: #fff;
+            --s-card-bg: #fff;
+            --s-code-bg: #2d2d2d;
+            --s-radius: 12px;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
+        /* 1. Main Container */
+        .stream-container {
+            max-width: 100%;
             margin: 0 auto;
+            color: #333;
+            line-height: 1.6;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        header {
+        /* 2. Scoped Header (Does not affect main app header) */
+        .stream-header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, var(--primary-color), #34495e);
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--s-primary), #34495e);
             color: white;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-radius: var(--s-radius);
         }
 
-        h1 { margin: 0; font-size: 2.5em; font-weight: 700; }
-        p.subtitle { opacity: 0.9; margin-top: 10px; font-size: 1.1em; }
-        .stat-badge { background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; font-size: 0.8em; margin-top: 10px; display: inline-block; }
-
-        .section-title {
+        /* 3. Section Titles */
+        .stream-section-title {
             display: flex;
             align-items: center;
-            margin-top: 50px;
-            margin-bottom: 25px;
-            color: var(--primary-color);
-            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--s-primary);
+            font-size: 1.5em;
             border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
+            font-weight: bold;
         }
-        
-        .section-icon { margin-right: 15px; font-size: 1.2em; }
 
-        .grid {
+        /* 4. Grid System */
+        .stream-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-            border-top: 5px solid transparent;
-            position: relative;
-            overflow: hidden;
+        /* 5. Cards */
+        .stream-card {
+            background: var(--s-card-bg);
+            border-radius: var(--s-radius);
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-top: 4px solid #ccc;
+            transition: transform 0.2s;
         }
+        .stream-card:hover { transform: translateY(-3px); }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
+        /* Card Colors */
+        .stream-card.filtering { border-top-color: #e74c3c; }
+        .stream-card.mapping { border-top-color: #3498db; }
+        .stream-card.sorting { border-top-color: #f1c40f; }
+        .stream-card.finding { border-top-color: #9b59b6; }
+        .stream-card.reducing { border-top-color: #27ae60; }
+        .stream-card.iterating { border-top-color: #e67e22; }
+        .stream-card.factory { border-top-color: #7f8c8d; }
 
-        /* Color Coding */
-        .card.filtering { border-top-color: #e74c3c; } /* Red */
-        .card.mapping { border-top-color: #3498db; }   /* Blue */
-        .card.sorting { border-top-color: #f1c40f; }   /* Yellow */
-        .card.finding { border-top-color: #9b59b6; }   /* Purple */
-        .card.reducing { border-top-color: #27ae60; }  /* Green */
-        .card.iterating { border-top-color: #e67e22; } /* Orange */
-        .card.factory { border-top-color: #7f8c8d; }   /* Grey */
-
-        .method-header {
+        /* 6. Text & Badges */
+        .stream-method-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--s-primary);
+            font-family: 'Consolas', monospace;
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
         }
 
-        .method-name {
-            font-size: 1.25em;
-            font-weight: 700;
-            color: var(--primary-color);
-            font-family: 'Consolas', monospace;
-        }
-
-        .badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
-        
-        .badge {
-            font-size: 0.65em;
-            padding: 4px 8px;
-            border-radius: 6px;
+        .stream-badge {
+            font-size: 0.6em;
+            padding: 3px 6px;
+            border-radius: 4px;
             color: white;
-            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        
-        .badge.java9 { background-color: #d35400; }
-        .badge.lazy { background-color: #95a5a6; }
-        .badge.eager { background-color: #2c3e50; }
-        .badge.primitive { background-color: #16a085; }
+        .bg-lazy { background-color: #95a5a6; }
+        .bg-eager { background-color: #2c3e50; }
+        .bg-java9 { background-color: #d35400; }
+        .bg-primitive { background-color: #16a085; }
+        .bg-debug { background-color: #f1c40f; color: black; }
 
-        .desc { font-size: 0.95em; margin-bottom: 15px; color: #555; line-height: 1.5; }
+        .stream-desc { font-size: 0.9em; margin: 10px 0; color: #555; }
 
-        code {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: var(--code-bg);
+        .stream-code {
+            font-family: 'Consolas', monospace;
+            background-color: var(--s-code-bg);
             color: #a6e22e;
-            padding: 12px;
-            display: block;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 6px;
             overflow-x: auto;
-            font-size: 0.85em;
-            border-left: 3px solid #666;
-        }
-        
-        .code-comment { color: #75715e; font-style: italic; }
-
-        footer {
-            text-align: center;
-            margin-top: 80px;
-            padding: 40px;
-            border-top: 1px solid #ddd;
-            color: #777;
+            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Complete Java Stream API Guide</h1>
-        <p class="subtitle">Every single method in java.util.stream.Stream (Java 8 to 17)</p>
-        <div class="stat-badge">43 Methods Documented</div>
-    </header>
+<div class="stream-container">
+    <div class="stream-header">
+        <h2 style="margin:0">Stream API Reference</h2>
+        <p style="margin:5px 0 0 0; opacity:0.8">40+ Methods</p>
+    </div>
 
-    <!-- 1. FILTERING & SLICING -->
-    <div class="section-title"><span class="section-icon">✂️</span> Filtering & Slicing (Intermediate)</div>
-    <div class="grid">
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">filter</div>
-                <div class="badges"><span class="badge lazy">Lazy</span></div>
-            </div>
-            <div class="desc">Keeps elements that match the predicate. The most common operation.</div>
-            <code>stream.filter(s -> s.length() > 3)</code>
+    <!-- 1. FILTERING -->
+    <div class="stream-section-title">✂️ Filtering & Slicing</div>
+    <div class="stream-grid">
+        <div class="stream-card filtering">
+            <div class="stream-method-name">filter <span class="stream-badge bg-lazy">Lazy</span></div>
+            <div class="stream-desc">Keeps elements that match the predicate.</div>
+            <div class="stream-code">stream.filter(s -> s.length() > 3)</div>
         </div>
-
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">distinct</div>
-                <div class="badges"><span class="badge lazy">Stateful</span></div>
-            </div>
-            <div class="desc">Removes duplicates based on <code>Object.equals()</code>.</div>
-            <code>stream.distinct()</code>
+        <div class="stream-card filtering">
+            <div class="stream-method-name">distinct <span class="stream-badge bg-lazy">Stateful</span></div>
+            <div class="stream-desc">Removes duplicates (equals()).</div>
+            <div class="stream-code">stream.distinct()</div>
         </div>
-
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">limit</div>
-                <div class="badges"><span class="badge lazy">Short-circuit</span></div>
-            </div>
-            <div class="desc">Truncates the stream to allow no more than 'n' elements.</div>
-            <code>stream.limit(5)</code>
+        <div class="stream-card filtering">
+            <div class="stream-method-name">limit <span class="stream-badge bg-lazy">Lazy</span></div>
+            <div class="stream-desc">Takes first N elements.</div>
+            <div class="stream-code">stream.limit(5)</div>
         </div>
-
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">skip</div>
-                <div class="badges"><span class="badge lazy">Lazy</span></div>
-            </div>
-            <div class="desc">Discards the first 'n' elements.</div>
-            <code>stream.skip(2)</code>
+        <div class="stream-card filtering">
+            <div class="stream-method-name">skip <span class="stream-badge bg-lazy">Lazy</span></div>
+            <div class="stream-desc">Skips first N elements.</div>
+            <div class="stream-code">stream.skip(2)</div>
         </div>
-
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">takeWhile</div>
-                <div class="badges"><span class="badge java9">Java 9</span><span class="badge lazy">Short-circuit</span></div>
-            </div>
-            <div class="desc">Takes elements <em>as long as</em> the condition is true, then stops immediately.</div>
-            <code>stream.takeWhile(n -> n < 10)</code>
+        <div class="stream-card filtering">
+            <div class="stream-method-name">takeWhile <span class="stream-badge bg-java9">Java 9</span></div>
+            <div class="stream-desc">Takes while true, then stops.</div>
+            <div class="stream-code">stream.takeWhile(n -> n < 10)</div>
         </div>
-
-        <div class="card filtering">
-            <div class="method-header">
-                <div class="method-name">dropWhile</div>
-                <div class="badges"><span class="badge java9">Java 9</span><span class="badge lazy">Lazy</span></div>
-            </div>
-            <div class="desc">Drops elements <em>as long as</em> the condition is true, then takes the rest.</div>
-            <code>stream.dropWhile(n -> n < 10)</code>
+        <div class="stream-card filtering">
+            <div class="stream-method-name">dropWhile <span class="stream-badge bg-java9">Java 9</span></div>
+            <div class="stream-desc">Drops while true, takes rest.</div>
+            <div class="stream-code">stream.dropWhile(n -> n < 10)</div>
         </div>
     </div>
 
-    <!-- 2. MAPPING & TRANSFORMING -->
-    <div class="section-title"><span class="section-icon">🔄</span> Mapping & Transforming (Intermediate)</div>
-    <div class="grid">
-        <div class="card mapping">
-            <div class="method-header">
-                <div class="method-name">map</div>
-                <div class="badges"><span class="badge lazy">Lazy</span></div>
-            </div>
-            <div class="desc">Applies a function to each element. 1-to-1 transformation.</div>
-            <code>stream.map(String::toUpperCase)</code>
+    <!-- 2. MAPPING -->
+    <div class="stream-section-title">🔄 Mapping</div>
+    <div class="stream-grid">
+        <div class="stream-card mapping">
+            <div class="stream-method-name">map <span class="stream-badge bg-lazy">Lazy</span></div>
+            <div class="stream-desc">1-to-1 transformation.</div>
+            <div class="stream-code">stream.map(String::toUpperCase)</div>
         </div>
-
-        <div class="card mapping">
-            <div class="method-header">
-                <div class="method-name">mapTo[Type]</div>
-                <div class="badges"><span class="badge primitive">Int/Long/Double</span></div>
-            </div>
-            <div class="desc"><code>mapToInt</code>, <code>mapToLong</code>, <code>mapToDouble</code>. Avoids boxing overhead. Returns IntStream, etc.</div>
-            <code>stream.mapToInt(User::getAge)</code>
+        <div class="stream-card mapping">
+            <div class="stream-method-name">flatMap <span class="stream-badge bg-lazy">Lazy</span></div>
+            <div class="stream-desc">1-to-Many flattening.</div>
+            <div class="stream-code">stream.flatMap(List::stream)</div>
         </div>
-
-        <div class="card mapping">
-            <div class="method-header">
-                <div class="method-name">flatMap</div>
-                <div class="badges"><span class="badge lazy">Lazy</span></div>
-            </div>
-            <div class="desc">Flattens nested structures. 1-to-Many transformation.</div>
-            <code>stream.flatMap(List::stream)</code>
-        </div>
-
-        <div class="card mapping">
-            <div class="method-header">
-                <div class="method-name">flatMapTo[Type]</div>
-                <div class="badges"><span class="badge primitive">Int/Long/Double</span></div>
-            </div>
-            <div class="desc"><code>flatMapToInt</code>, etc. Flattens elements into a primitive stream.</div>
-            <code>stream.flatMapToInt(x -> IntStream.of(x, x+1))</code>
+        <div class="stream-card mapping">
+            <div class="stream-method-name">mapToInt <span class="stream-badge bg-primitive">Primitive</span></div>
+            <div class="stream-desc">Unboxes to IntStream.</div>
+            <div class="stream-code">stream.mapToInt(User::getAge)</div>
         </div>
     </div>
 
-    <!-- 3. SORTING & DEBUGGING -->
-    <div class="section-title"><span class="section-icon">📊</span> Sorting & Debugging (Intermediate)</div>
-    <div class="grid">
-        <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">sorted</div>
-                <div class="badges"><span class="badge lazy">Stateful</span></div>
-            </div>
-            <div class="desc">Sorts in natural order. Warning: Expensive on large streams.</div>
-            <code>stream.sorted()</code>
+    <!-- 3. SORTING -->
+    <div class="stream-section-title">📊 Sorting</div>
+    <div class="stream-grid">
+        <div class="stream-card sorting">
+            <div class="stream-method-name">sorted <span class="stream-badge bg-lazy">Stateful</span></div>
+            <div class="stream-desc">Natural order sort.</div>
+            <div class="stream-code">stream.sorted()</div>
         </div>
-
-        <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">sorted(Comparator)</div>
-                <div class="badges"><span class="badge lazy">Stateful</span></div>
-            </div>
-            <div class="desc">Sorts using a custom comparator.</div>
-            <code>stream.sorted(Comparator.reverseOrder())</code>
-        </div>
-
-        <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">peek</div>
-                <div class="badges"><span class="badge lazy">Debug</span></div>
-            </div>
-            <div class="desc">Performs an action without modifying the stream. Strictly for debugging.</div>
-            <code>stream.peek(System.out::println)</code>
-        </div>
-        
-        <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">unordered</div>
-                <div class="badges"><span class="badge lazy">Optimization</span></div>
-            </div>
-            <div class="desc">Relaxes the ordering constraint, allowing parallel streams to run faster.</div>
-            <code>stream.unordered()</code>
-        </div>
-        
-        <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">parallel / sequential</div>
-                <div class="badges"><span class="badge lazy">Mode</span></div>
-            </div>
-            <div class="desc">Switches the stream execution mode.</div>
-            <code>stream.parallel()</code>
-        </div>
-        
-         <div class="card sorting">
-            <div class="method-header">
-                <div class="method-name">onClose</div>
-                <div class="badges"><span class="badge lazy">Hook</span></div>
-            </div>
-            <div class="desc">Adds an event handler to run when <code>close()</code> is called.</div>
-            <code>stream.onClose(() -> log("Done"))</code>
+        <div class="stream-card sorting">
+            <div class="stream-method-name">peek <span class="stream-badge bg-debug">Debug</span></div>
+            <div class="stream-desc">Action without modifying.</div>
+            <div class="stream-code">stream.peek(System.out::println)</div>
         </div>
     </div>
 
-    <!-- 4. FINDING & MATCHING -->
-    <div class="section-title"><span class="section-icon">🔍</span> Finding & Matching (Terminal)</div>
-    <div class="grid">
-        <div class="card finding">
-            <div class="method-header">
-                <div class="method-name">findFirst</div>
-                <div class="badges"><span class="badge eager">Optional</span></div>
-            </div>
-            <div class="desc">Returns the first element. Deterministic in ordered streams.</div>
-            <code>stream.findFirst()</code>
+    <!-- 4. TERMINAL -->
+    <div class="stream-section-title">📦 Terminal Ops</div>
+    <div class="stream-grid">
+        <div class="stream-card reducing">
+            <div class="stream-method-name">collect <span class="stream-badge bg-eager">Result</span></div>
+            <div class="stream-desc">Accumulate to List/Map/Set.</div>
+            <div class="stream-code">stream.collect(Collectors.toList())</div>
         </div>
-
-        <div class="card finding">
-            <div class="method-header">
-                <div class="method-name">findAny</div>
-                <div class="badges"><span class="badge eager">Optional</span></div>
-            </div>
-            <div class="desc">Returns <em>any</em> element. Faster than findFirst in parallel streams.</div>
-            <code>stream.findAny()</code>
+        <div class="stream-card reducing">
+            <div class="stream-method-name">reduce <span class="stream-badge bg-eager">Result</span></div>
+            <div class="stream-desc">Combine to single value.</div>
+            <div class="stream-code">stream.reduce(0, (a,b)->a+b)</div>
         </div>
-
-        <div class="card finding">
-            <div class="method-header">
-                <div class="method-name">anyMatch</div>
-                <div class="badges"><span class="badge eager">Boolean</span></div>
-            </div>
-            <div class="desc">True if at least one element matches.</div>
-            <code>stream.anyMatch(s -> s.isEmpty())</code>
+        <div class="stream-card finding">
+            <div class="stream-method-name">anyMatch <span class="stream-badge bg-eager">Bool</span></div>
+            <div class="stream-desc">True if any match.</div>
+            <div class="stream-code">stream.anyMatch(s -> s.isEmpty())</div>
         </div>
-
-        <div class="card finding">
-            <div class="method-header">
-                <div class="method-name">allMatch</div>
-                <div class="badges"><span class="badge eager">Boolean</span></div>
-            </div>
-            <div class="desc">True if ALL elements match.</div>
-            <code>stream.allMatch(n -> n > 0)</code>
-        </div>
-
-        <div class="card finding">
-            <div class="method-header">
-                <div class="method-name">noneMatch</div>
-                <div class="badges"><span class="badge eager">Boolean</span></div>
-            </div>
-            <div class="desc">True if NO elements match.</div>
-            <code>stream.noneMatch(s -> s.contains("fail"))</code>
+        <div class="stream-card iterating">
+            <div class="stream-method-name">forEach <span class="stream-badge bg-eager">Void</span></div>
+            <div class="stream-desc">Run action for each.</div>
+            <div class="stream-code">stream.forEach(printFn)</div>
         </div>
     </div>
-
-    <!-- 5. REDUCING & COLLECTING -->
-    <div class="section-title"><span class="section-icon">📦</span> Reducing & Collecting (Terminal)</div>
-    <div class="grid">
-        <div class="card reducing">
-            <div class="method-header">
-                <div class="method-name">collect</div>
-                <div class="badges"><span class="badge eager">Mutable</span></div>
-            </div>
-            <div class="desc">The most powerful terminal op. Converts stream to List, Map, Set, etc.</div>
-            <code>stream.collect(Collectors.toList())</code>
+    
+    <!-- 5. FACTORIES -->
+    <div class="stream-section-title">🏭 Factories</div>
+    <div class="stream-grid">
+        <div class="stream-card factory">
+            <div class="stream-method-name">Stream.of</div>
+            <div class="stream-code">Stream.of("A", "B")</div>
         </div>
-
-        <div class="card reducing">
-            <div class="method-header">
-                <div class="method-name">reduce</div>
-                <div class="badges"><span class="badge eager">Immutable</span></div>
-            </div>
-            <div class="desc">Combines elements into a single result using a BinaryOperator. 3 variations exist.</div>
-            <code>stream.reduce(0, (a, b) -> a + b)</code>
-        </div>
-
-        <div class="card reducing">
-            <div class="method-header">
-                <div class="method-name">min / max</div>
-                <div class="badges"><span class="badge eager">Optional</span></div>
-            </div>
-            <div class="desc">Finds smallest or largest element using a Comparator.</div>
-            <code>stream.min(Integer::compare)</code>
-        </div>
-
-        <div class="card reducing">
-            <div class="method-header">
-                <div class="method-name">count</div>
-                <div class="badges"><span class="badge eager">Long</span></div>
-            </div>
-            <div class="desc">Returns the number of elements.</div>
-            <code>stream.count()</code>
-        </div>
-
-        <div class="card reducing">
-            <div class="method-header">
-                <div class="method-name">toArray</div>
-                <div class="badges"><span class="badge eager">Array</span></div>
-            </div>
-            <div class="desc">Converts stream to array.</div>
-            <code>stream.toArray(String[]::new)</code>
+        <div class="stream-card factory">
+            <div class="stream-method-name">Stream.iterate</div>
+            <div class="stream-code">Stream.iterate(0, n->n+1)</div>
         </div>
     </div>
-
-    <!-- 6. ITERATING -->
-    <div class="section-title"><span class="section-icon">🔄</span> Iterating (Terminal)</div>
-    <div class="grid">
-        <div class="card iterating">
-            <div class="method-header">
-                <div class="method-name">forEach</div>
-                <div class="badges"><span class="badge eager">Void</span></div>
-            </div>
-            <div class="desc">Runs an action for every element. Order is NOT guaranteed in parallel streams.</div>
-            <code>stream.forEach(System.out::println)</code>
-        </div>
-
-        <div class="card iterating">
-            <div class="method-header">
-                <div class="method-name">forEachOrdered</div>
-                <div class="badges"><span class="badge eager">Void</span></div>
-            </div>
-            <div class="desc">Runs an action for every element, strictly maintaining encounter order.</div>
-            <code>stream.forEachOrdered(printFn)</code>
-        </div>
+    
+    <div style="text-align:center; margin-top:50px; color:#888;">
+        End of Reference
     </div>
-
-    <!-- 7. FACTORIES (STATIC) -->
-    <div class="section-title"><span class="section-icon">🏭</span> Factories (Static Methods)</div>
-    <div class="grid">
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.of</div>
-                <div class="badges"><span class="badge eager">Create</span></div>
-            </div>
-            <div class="desc">Creates a stream from explicit values.</div>
-            <code>Stream.of("A", "B")</code>
-        </div>
-        
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.empty</div>
-                <div class="badges"><span class="badge eager">Create</span></div>
-            </div>
-            <div class="desc">Returns an empty sequential stream.</div>
-            <code>Stream.empty()</code>
-        </div>
-
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.concat</div>
-                <div class="badges"><span class="badge eager">Create</span></div>
-            </div>
-            <div class="desc">Concatenates two streams lazily.</div>
-            <code>Stream.concat(s1, s2)</code>
-        </div>
-
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.builder</div>
-                <div class="badges"><span class="badge eager">Create</span></div>
-            </div>
-            <div class="desc">Manually builds a stream element by element.</div>
-            <code>Stream.builder().add("A").build()</code>
-        </div>
-
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.generate</div>
-                <div class="badges"><span class="badge eager">Infinite</span></div>
-            </div>
-            <div class="desc">Infinite stream from a Supplier.</div>
-            <code>Stream.generate(Math::random)</code>
-        </div>
-
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.iterate (Unary)</div>
-                <div class="badges"><span class="badge eager">Infinite</span></div>
-            </div>
-            <div class="desc">Iterative stream: <code>seed, f(seed), f(f(seed))...</code></div>
-            <code>Stream.iterate(0, n -> n + 1)</code>
-        </div>
-        
-        <div class="card factory">
-            <div class="method-header">
-                <div class="method-name">Stream.iterate (Predicate)</div>
-                <div class="badges"><span class="badge java9">Java 9</span></div>
-            </div>
-            <div class="desc">Iterate with a termination condition (like a for-loop).</div>
-            <code>Stream.iterate(0, n->n<10, n->n+1)</code>
-        </div>
-    </div>
-
 </div>
 
 </body>
