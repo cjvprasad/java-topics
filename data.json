@@ -1,0 +1,9 @@
+[
+  {
+    "id": "streams",
+    "title": "Java Stream API Guide",
+    "description": "A comprehensive cheat sheet for all java.util.stream methods (Java 8-17).",
+    "file": "streams.html",
+    "icon": "🌊"
+  }
+]
